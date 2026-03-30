@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { incomeApi } from '../api/incomeApi';
-import toast from 'react-hot-toast';
+import { useSearchParams }                  from 'react-router-dom';
+import { incomeApi }                        from '../api/incomeApi';
+import toast                                from 'react-hot-toast';
 
 export const useIncome = (initialPage = 0, pageSize = 10) => {
   const [data,    setData]    = useState({
@@ -9,18 +10,32 @@ export const useIncome = (initialPage = 0, pageSize = 10) => {
   const [page,    setPage]    = useState(initialPage);
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
+  const [searchParams]        = useSearchParams();
+  const searchQuery           = searchParams.get('search') || '';
 
   const fetchIncomes = useCallback(async () => {
     setLoading(true);
     try {
       const res = await incomeApi.getAll(page, pageSize);
-      setData(res.data);
+      let content = res.data.content ?? [];
+
+      // Client-side filter by search query
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        content = content.filter(i =>
+          i.source?.toLowerCase().includes(q) ||
+          i.category?.toLowerCase().includes(q) ||
+          i.note?.toLowerCase().includes(q)
+        );
+      }
+
+      setData({ ...res.data, content });
     } catch {
       toast.error('Failed to load incomes');
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, searchQuery]);
 
   useEffect(() => { fetchIncomes(); }, [fetchIncomes]);
 
@@ -71,6 +86,7 @@ export const useIncome = (initialPage = 0, pageSize = 10) => {
     page,
     loading,
     saving,
+    searchQuery,
     setPage,
     fetchIncomes,
     createIncome,

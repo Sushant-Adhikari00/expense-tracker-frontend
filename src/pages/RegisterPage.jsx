@@ -16,24 +16,54 @@ const RegisterPage = () => {
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
+  const [errors,      setErrors]      = useState({});
+  const [globalError, setGlobalError] = useState('');
+
+const validate = () => {
+  const newErrors = {};
+  if (!form.fullName.trim())
+    newErrors.fullName = 'Full name is required';
+  if (!form.email.trim())
+    newErrors.email = 'Email is required';
+  else if (!/\S+@\S+\.\S+/.test(form.email))
+    newErrors.email = 'Enter a valid email address';
+  if (!form.password)
+    newErrors.password = 'Password is required';
+  else if (form.password.length < 8)
+    newErrors.password = 'Password must be at least 8 characters';
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
+  e.preventDefault();
+  setGlobalError('');
+  if (!validate()) return;
+
+  setLoading(true);
+  try {
+    const { data } = await authApi.register(form);
+    login(data);
+    toast.success('Account created! Welcome aboard.');
+    navigate('/dashboard');
+  } catch (err) {
+    const status  = err.response?.status;
+    const message = err.response?.data?.message;
+
+    if (status === 409) {
+      setGlobalError('An account with this email already exists.');
+      setErrors({ email: 'Email already registered' });
+    } else if (status === 400) {
+      setGlobalError(message || 'Please check your input and try again.');
+    } else if (!err.response) {
+      setGlobalError('Cannot connect to server. Please try again later.');
+    } else {
+      setGlobalError(message || 'Something went wrong. Please try again.');
     }
-    setLoading(true);
-    try {
-      const { data } = await authApi.register(form);
-      login(data);
-      toast.success('Account created! Welcome aboard.');
-      navigate('/dashboard');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const inputStyle = {
     display:         'block',
@@ -59,6 +89,7 @@ const RegisterPage = () => {
     { name: 'email',    label: 'Email address', type: 'email', placeholder: 'john@example.com'   },
   ];
 
+  
   return (
     <>
       <style>{`

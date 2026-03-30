@@ -4,7 +4,6 @@ import PageWrapper         from '../components/common/PageWrapper';
 import TransactionTable    from '../components/transactions/TransactionTable';
 import TransactionForm     from '../components/transactions/TransactionForm';
 
-// ← Put it here, outside the component
 const addBtnStyle = {
   display:         'flex',
   alignItems:      'center',
