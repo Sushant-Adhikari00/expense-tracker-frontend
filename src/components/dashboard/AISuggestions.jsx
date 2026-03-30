@@ -1,106 +1,53 @@
-import { AlertTriangle, Lightbulb, TrendingDown, CheckCircle } from 'lucide-react';
+const types = {
+  warning: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)', icon: '⚠️', titleColor: '#fbbf24', textColor: 'rgba(251,191,36,0.75)' },
+  info:    { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)', icon: '💡', titleColor: '#60a5fa', textColor: 'rgba(96,165,250,0.75)'  },
+  danger:  { bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.2)',  icon: '📉', titleColor: '#f87171', textColor: 'rgba(248,113,113,0.75)' },
+  success: { bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.2)', icon: '✅', titleColor: '#34d399', textColor: 'rgba(52,211,153,0.75)'  },
+};
 
-const suggestions = (summary) => {
+const getSuggestions = (summary) => {
+  if (!summary) return [];
   const list = [];
 
-  if (!summary) return list;
+  if (summary.netSavings < 0)
+    list.push({ type: 'danger',  title: 'Spending Exceeds Income',    message: 'You spent more than you earned this month. Review your largest expense categories immediately.' });
 
-  if (summary.expensesExceed70Percent) {
-    list.push({
-      type:    'warning',
-      icon:    AlertTriangle,
-      title:   'High Spending Alert',
-      message: `Your expenses exceed 70% of your income this month.
-                Consider reviewing discretionary spending categories.`,
-      color: {
-        bg:     'bg-amber-500/10',
-        border: 'border-amber-500/20',
-        icon:   'text-amber-400',
-        title:  'text-amber-300',
-        text:   'text-amber-400/80',
-      },
-    });
-  }
+  if (summary.expensesExceed70Percent)
+    list.push({ type: 'warning', title: 'High Spending Alert',         message: 'Your expenses exceed 70% of your income this month. Consider reviewing discretionary spending.' });
 
-  if (summary.savingsRateLow && !summary.expensesExceed70Percent) {
-    list.push({
-      type:    'info',
-      icon:    Lightbulb,
-      title:   'Low Savings Rate',
-      message: `Your savings rate is below 20%. Try automating a fixed
-                monthly transfer to your savings goals.`,
-      color: {
-        bg:     'bg-blue-500/10',
-        border: 'border-blue-500/20',
-        icon:   'text-blue-400',
-        title:  'text-blue-300',
-        text:   'text-blue-400/80',
-      },
-    });
-  }
+  if (summary.savingsRateLow && !summary.expensesExceed70Percent)
+    list.push({ type: 'info',    title: 'Low Savings Rate',            message: 'Your savings rate is below 20%. Try automating a fixed monthly transfer to your savings goals.' });
 
-  if (summary.netSavings < 0) {
-    list.push({
-      type:    'danger',
-      icon:    TrendingDown,
-      title:   'Spending Exceeds Income',
-      message: `You spent more than you earned this month.
-                Review your largest expense categories immediately.`,
-      color: {
-        bg:     'bg-red-500/10',
-        border: 'border-red-500/20',
-        icon:   'text-red-400',
-        title:  'text-red-300',
-        text:   'text-red-400/80',
-      },
-    });
-  }
-
-  if (
-    !summary.expensesExceed70Percent &&
-    !summary.savingsRateLow &&
-    summary.netSavings > 0
-  ) {
-    list.push({
-      type:    'success',
-      icon:    CheckCircle,
-      title:   'Great Financial Health',
-      message: `You are saving over 20% of your income this month.
-                Keep it up and consider allocating extra savings to your goals.`,
-      color: {
-        bg:     'bg-emerald-500/10',
-        border: 'border-emerald-500/20',
-        icon:   'text-emerald-400',
-        title:  'text-emerald-300',
-        text:   'text-emerald-400/80',
-      },
-    });
-  }
+  if (!summary.expensesExceed70Percent && !summary.savingsRateLow && summary.netSavings > 0)
+    list.push({ type: 'success', title: 'Great Financial Health',      message: 'You are saving over 20% of your income this month. Consider allocating extra savings to your goals.' });
 
   return list;
 };
 
 const AISuggestions = ({ summary }) => {
-  const items = suggestions(summary);
-
+  const items = getSuggestions(summary);
   if (!items.length) return null;
 
   return (
-    <div className="space-y-3">
-      {items.map((item, idx) => {
-        const Icon = item.icon;
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+      {items.map((item, i) => {
+        const t = types[item.type];
         return (
-          <div
-            key={idx}
-            className={`${item.color.bg} border ${item.color.border}
-                        rounded-2xl px-5 py-4 flex items-start gap-3`}
-          >
-            <Icon size={18} className={`${item.color.icon} mt-0.5 shrink-0`} />
+          <div key={i} style={{
+            backgroundColor: t.bg,
+            border:          `1px solid ${t.border}`,
+            borderRadius:    '14px',
+            padding:         '14px 18px',
+            display:         'flex',
+            alignItems:      'flex-start',
+            gap:             '12px',
+          }}>
+            <span style={{ fontSize: '18px', flexShrink: 0 }}>{t.icon}</span>
             <div>
-              <p className={`font-medium text-sm ${item.color.title}`}>
+              <p style={{ color: t.titleColor, fontSize: '14px', fontWeight: 600, margin: '0 0 3px 0' }}>
                 {item.title}
               </p>
-              <p className={`text-xs mt-0.5 leading-relaxed ${item.color.text}`}>
+              <p style={{ color: t.textColor, fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
                 {item.message}
               </p>
             </div>

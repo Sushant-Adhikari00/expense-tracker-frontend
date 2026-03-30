@@ -1,13 +1,27 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
 import { useIncome }       from '../hooks/useIncome';
 import PageWrapper         from '../components/common/PageWrapper';
 import TransactionTable    from '../components/transactions/TransactionTable';
 import TransactionForm     from '../components/transactions/TransactionForm';
 
+// ← Put it here, outside the component
+const addBtnStyle = {
+  display:         'flex',
+  alignItems:      'center',
+  gap:             '8px',
+  backgroundColor: '#10b981',
+  border:          'none',
+  borderRadius:    '10px',
+  color:           '#ffffff',
+  fontSize:        '14px',
+  fontWeight:      600,
+  padding:         '10px 18px',
+  cursor:          'pointer',
+};
+
 const IncomePage = () => {
   const {
-    data, page, loading, saving,
+    data, loading, saving,
     setPage, createIncome, updateIncome, deleteIncome,
   } = useIncome();
 
@@ -32,15 +46,10 @@ const IncomePage = () => {
   return (
     <PageWrapper
       title="Income"
-      subtitle={`${data.totalElements} records total`}
+      subtitle={`${data.totalElements ?? 0} records total`}
       action={
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400
-                     text-white text-sm font-medium px-4 py-2.5 rounded-xl transition"
-        >
-          <Plus size={16} />
-          Add Income
+        <button style={addBtnStyle} onClick={() => setShowForm(true)}>
+          + Add Income
         </button>
       }
     >

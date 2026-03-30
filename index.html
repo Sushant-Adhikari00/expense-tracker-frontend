@@ -1,12 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" style="height: 100%;">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WealthTrack</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body, #root { height: 100%; }
+      body {
+        background-color: #030712;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #111827; }
+      ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+      input::placeholder { color: #6b7280; }
+      a { text-decoration: none; }
+    </style>
   </head>
-  <body style="height: 100%; margin: 0; padding: 0; background-color: #030712;">
-    <div id="root" style="height: 100%;"></div>
+  <body>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

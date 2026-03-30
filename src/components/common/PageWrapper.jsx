@@ -2,26 +2,42 @@ import Sidebar from './Sidebar';
 import Navbar  from './Navbar';
 
 const PageWrapper = ({ children, title, subtitle, action }) => (
-  <div className="flex min-h-screen bg-gray-950">
+  <div style={{
+    display:         'flex',
+    minHeight:       '100vh',
+    backgroundColor: '#030712',
+    fontFamily:      'Inter, -apple-system, sans-serif',
+  }}>
     <Sidebar />
 
-    <div className="flex-1 ml-64 flex flex-col min-h-screen">
-
-      {/* Top navbar */}
+    <div style={{
+      flex:          1,
+      marginLeft:    '240px',
+      display:       'flex',
+      flexDirection: 'column',
+      minHeight:     '100vh',
+    }}>
       <Navbar title={title} />
 
-      {/* Page content */}
-      <main className="flex-1 px-8 py-8">
-        <div className="max-w-7xl mx-auto">
+      <main style={{
+        flex:    1,
+        padding: '32px',
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
-          {/* Page header with action button */}
+          {/* Sub-header row */}
           {(subtitle || action) && (
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                {subtitle && (
-                  <p className="text-gray-400 text-sm">{subtitle}</p>
-                )}
-              </div>
+            <div style={{
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'space-between',
+              marginBottom:   '24px',
+            }}>
+              {subtitle && (
+                <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
+                  {subtitle}
+                </p>
+              )}
               {action && <div>{action}</div>}
             </div>
           )}

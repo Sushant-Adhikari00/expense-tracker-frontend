@@ -1,24 +1,57 @@
 import { useState } from 'react';
-import { Plus, PiggyBank } from 'lucide-react';
 import { useGoals }    from '../hooks/useGoals';
 import PageWrapper     from '../components/common/PageWrapper';
 import GoalCard        from '../components/goals/GoalCard';
 import GoalForm        from '../components/goals/GoalForm';
 import { formatCurrency } from '../utils/formatCurrency';
-import toast from 'react-hot-toast';
 
+// ← Put it here, outside the component
+const addBtnStyle = {
+  display:         'flex',
+  alignItems:      'center',
+  gap:             '8px',
+  backgroundColor: '#10b981',
+  border:          'none',
+  borderRadius:    '10px',
+  color:           '#ffffff',
+  fontSize:        '14px',
+  fontWeight:      600,
+  padding:         '10px 18px',
+  cursor:          'pointer',
+};
+
+// Deposit modal — kept inside this file
 const DepositModal = ({ goal, onDeposit, onClose, loading }) => {
   const [amount, setAmount] = useState('');
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm
-                    flex items-center justify-center z-50 px-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl
-                      w-full max-w-sm p-6 shadow-2xl">
-        <h2 className="text-white font-semibold text-lg mb-1">Add Deposit</h2>
-        <p className="text-gray-400 text-sm mb-5">
+    <div style={{
+      position:        'fixed',
+      inset:           0,
+      backgroundColor: 'rgba(0,0,0,0.7)',
+      backdropFilter:  'blur(4px)',
+      display:         'flex',
+      alignItems:      'center',
+      justifyContent:  'center',
+      zIndex:          50,
+      padding:         '16px',
+    }}>
+      <div style={{
+        backgroundColor: '#0f172a',
+        border:          '1px solid #1e293b',
+        borderRadius:    '18px',
+        padding:         '28px',
+        width:           '100%',
+        maxWidth:        '380px',
+        boxShadow:       '0 25px 50px rgba(0,0,0,0.5)',
+      }}>
+        <h2 style={{ color: '#ffffff', fontSize: '18px', fontWeight: 600, margin: '0 0 6px 0' }}>
+          Add Deposit
+        </h2>
+        <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 20px 0' }}>
           {goal.name} · {formatCurrency(goal.savedAmount)} saved so far
         </p>
+
         <input
           type="number"
           min="0.01"
@@ -26,24 +59,53 @@ const DepositModal = ({ goal, onDeposit, onClose, loading }) => {
           value={amount}
           onChange={e => setAmount(e.target.value)}
           placeholder="Enter amount to deposit"
-          className="w-full bg-gray-800 border border-gray-700 text-white
-                     placeholder-gray-500 rounded-xl px-4 py-2.5 text-sm mb-4
-                     focus:outline-none focus:border-emerald-500 transition"
+          style={{
+            display:         'block',
+            width:           '100%',
+            backgroundColor: '#1e293b',
+            border:          '1px solid #334155',
+            borderRadius:    '10px',
+            padding:         '11px 14px',
+            color:           '#ffffff',
+            fontSize:        '14px',
+            outline:         'none',
+            boxSizing:       'border-box',
+            marginBottom:    '16px',
+          }}
+          onFocus={e => e.target.style.borderColor = '#10b981'}
+          onBlur={e  => e.target.style.borderColor = '#334155'}
         />
-        <div className="flex gap-3">
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300
-                       font-medium py-2.5 rounded-xl transition text-sm"
+            style={{
+              backgroundColor: '#1e293b',
+              border:          '1px solid #334155',
+              borderRadius:    '10px',
+              color:           '#94a3b8',
+              fontSize:        '14px',
+              fontWeight:      500,
+              padding:         '11px',
+              cursor:          'pointer',
+            }}
           >
             Cancel
           </button>
           <button
             onClick={() => onDeposit(Number(amount))}
             disabled={!amount || Number(amount) <= 0 || loading}
-            className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white
-                       font-semibold py-2.5 rounded-xl transition text-sm
-                       disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#10b981',
+              border:          'none',
+              borderRadius:    '10px',
+              color:           '#ffffff',
+              fontSize:        '14px',
+              fontWeight:      600,
+              padding:         '11px',
+              cursor:          (!amount || loading) ? 'not-allowed' : 'pointer',
+              opacity:         (!amount || loading) ? 0.6 : 1,
+            }}
           >
             {loading ? 'Depositing...' : 'Deposit'}
           </button>
@@ -84,7 +146,6 @@ const GoalsPage = () => {
     await deleteGoal(id);
   };
 
-  // Stats for summary row
   const inProgress = goals.filter(g => g.status === 'IN_PROGRESS').length;
   const completed  = goals.filter(g => g.status === 'COMPLETED').length;
 
@@ -93,28 +154,33 @@ const GoalsPage = () => {
       title="Saving Goals"
       subtitle="Track your financial milestones"
       action={
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400
-                     text-white text-sm font-medium px-4 py-2.5 rounded-xl transition"
-        >
-          <Plus size={16} />
-          New Goal
+        <button style={addBtnStyle} onClick={() => setShowForm(true)}>
+          + New Goal
         </button>
       }
     >
+
       {/* Stats row */}
       {goals.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div style={{
+          display:             'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap:                 '16px',
+          marginBottom:        '24px',
+        }}>
           {[
-            { label: 'Total Goals',  value: goals.length,  color: 'text-white'        },
-            { label: 'In Progress',  value: inProgress,    color: 'text-blue-400'     },
-            { label: 'Completed',    value: completed,     color: 'text-emerald-400'  },
+            { label: 'Total Goals', value: goals.length, color: '#ffffff'  },
+            { label: 'In Progress', value: inProgress,   color: '#60a5fa'  },
+            { label: 'Completed',   value: completed,    color: '#34d399'  },
           ].map(({ label, value, color }) => (
-            <div key={label}
-              className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
-              <p className="text-gray-400 text-sm">{label}</p>
-              <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+            <div key={label} style={{
+              backgroundColor: '#0f172a',
+              border:          '1px solid #1e293b',
+              borderRadius:    '14px',
+              padding:         '18px 22px',
+            }}>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 6px 0' }}>{label}</p>
+              <p style={{ color, fontSize: '28px', fontWeight: 700, margin: 0 }}>{value}</p>
             </div>
           ))}
         </div>
@@ -122,39 +188,50 @@ const GoalsPage = () => {
 
       {/* Loading */}
       {loading && (
-        <div className="flex justify-center py-24">
-          <div className="w-8 h-8 border-2 border-emerald-500
-                          border-t-transparent rounded-full animate-spin" />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '64px' }}>
+          <div style={{
+            width: '32px', height: '32px',
+            border: '2px solid #10b981',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 
       {/* Empty state */}
       {!loading && goals.length === 0 && (
-        <div className="flex flex-col items-center justify-center
-                        bg-gray-900 border border-gray-800 rounded-2xl py-20 gap-4">
-          <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl
-                          flex items-center justify-center">
-            <PiggyBank size={24} className="text-emerald-400" />
-          </div>
-          <div className="text-center">
-            <p className="text-white font-medium">No saving goals yet</p>
-            <p className="text-gray-500 text-sm mt-1">
-              Set your first financial target to get started
-            </p>
-          </div>
+        <div style={{
+          backgroundColor: '#0f172a',
+          border:          '1px solid #1e293b',
+          borderRadius:    '16px',
+          padding:         '64px 32px',
+          textAlign:       'center',
+        }}>
+          <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎯</div>
+          <p style={{ color: '#ffffff', fontSize: '16px', fontWeight: 600, margin: '0 0 8px 0' }}>
+            No saving goals yet
+          </p>
+          <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 20px 0' }}>
+            Set your first financial target to get started
+          </p>
           <button
+            style={addBtnStyle}
             onClick={() => setShowForm(true)}
-            className="bg-emerald-500 hover:bg-emerald-400 text-white
-                       text-sm font-medium px-5 py-2.5 rounded-xl transition"
           >
-            Create First Goal
+            + Create First Goal
           </button>
         </div>
       )}
 
       {/* Goal cards grid */}
       {!loading && goals.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div style={{
+          display:             'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap:                 '16px',
+        }}>
           {goals.map(goal => (
             <GoalCard
               key={goal.id}

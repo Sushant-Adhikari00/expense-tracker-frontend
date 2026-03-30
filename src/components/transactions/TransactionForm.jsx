@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 
 const INCOME_CATEGORIES  = ['SALARY','FREELANCE','INVESTMENT','BUSINESS','GIFT','OTHER'];
 const EXPENSE_CATEGORIES = ['FOOD','TRANSPORT','HOUSING','ENTERTAINMENT',
                             'HEALTH','EDUCATION','SHOPPING','UTILITIES','OTHER'];
 
 const TransactionForm = ({ type, initial, onSubmit, onClose, loading }) => {
-  const isIncome = type === 'income';
+  const isIncome   = type === 'income';
   const categories = isIncome ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
 
   const [form, setForm] = useState({
@@ -16,7 +15,6 @@ const TransactionForm = ({ type, initial, onSubmit, onClose, loading }) => {
     date:     new Date().toISOString().split('T')[0],
     category: categories[0],
     note:     '',
-    ...initial,
   });
 
   useEffect(() => {
@@ -29,139 +27,172 @@ const TransactionForm = ({ type, initial, onSubmit, onClose, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = isIncome
-      ? { source: form.source, amount: Number(form.amount),
-          date: form.date, category: form.category, note: form.note }
-      : { title:  form.title,  amount: Number(form.amount),
-          date: form.date, category: form.category, note: form.note };
+      ? { source: form.source, amount: Number(form.amount), date: form.date, category: form.category, note: form.note }
+      : { title:  form.title,  amount: Number(form.amount), date: form.date, category: form.category, note: form.note };
     onSubmit(payload);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm
-                    flex items-center justify-center z-50 px-4">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl
-                      w-full max-w-md p-6 shadow-2xl">
+    <>
+      {/* Global style reset for this modal */}
+      <style>{`
+        .tf-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+          backdrop-filter: blur(6px); display: flex; align-items: center;
+          justify-content: center; z-index: 9999; padding: 16px; }
+        .tf-box { background: #0f172a; border: 1px solid #1e293b;
+          border-radius: 20px; padding: 28px; width: 100%; max-width: 440px;
+          box-shadow: 0 32px 64px rgba(0,0,0,0.6); font-family: Inter, sans-serif; }
+        .tf-header { display: flex; align-items: center;
+          justify-content: space-between; margin-bottom: 24px; }
+        .tf-title { color: #ffffff; font-size: 18px;
+          font-weight: 700; margin: 0; }
+        .tf-close { background: none; border: none; color: #64748b;
+          font-size: 22px; cursor: pointer; line-height: 1;
+          padding: 0; width: 28px; height: 28px; display: flex;
+          align-items: center; justify-content: center;
+          border-radius: 6px; }
+        .tf-close:hover { background: #1e293b; color: #ffffff; }
+        .tf-field { display: flex; flex-direction: column; gap: 6px;
+          margin-bottom: 16px; }
+        .tf-label { color: #94a3b8; font-size: 13px; font-weight: 500; }
+        .tf-input { display: block; width: 100%; background: #1e293b;
+          border: 1px solid #334155; border-radius: 10px;
+          padding: 11px 14px; color: #ffffff; font-size: 14px;
+          outline: none; box-sizing: border-box;
+          font-family: Inter, sans-serif; }
+        .tf-input:focus { border-color: #10b981; }
+        .tf-input::placeholder { color: #475569; }
+        .tf-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .tf-row .tf-field { flex: 1; margin-bottom: 0; }
+        .tf-actions { display: flex; gap: 10px; margin-top: 24px; }
+        .tf-btn-cancel { flex: 1; background: #1e293b; border: 1px solid #334155;
+          border-radius: 10px; color: #94a3b8; font-size: 14px;
+          font-weight: 600; padding: 12px; cursor: pointer;
+          font-family: Inter, sans-serif; }
+        .tf-btn-cancel:hover { background: #263347; color: #ffffff; }
+        .tf-btn-submit { flex: 1; background: #10b981; border: none;
+          border-radius: 10px; color: #ffffff; font-size: 14px;
+          font-weight: 600; padding: 12px; cursor: pointer;
+          font-family: Inter, sans-serif; }
+        .tf-btn-submit:hover { background: #059669; }
+        .tf-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+      `}</style>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-white font-semibold text-lg">
-            {initial ? 'Edit' : 'Add'}{' '}
-            {isIncome ? 'Income' : 'Expense'}
-          </h2>
-          <button onClick={onClose}
-            className="text-gray-400 hover:text-white transition">
-            <X size={20} />
-          </button>
+      <div className="tf-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className="tf-box">
+
+          {/* Header */}
+          <div className="tf-header">
+            <h2 className="tf-title">
+              {initial ? 'Edit' : 'Add'} {isIncome ? 'Income' : 'Expense'}
+            </h2>
+            <button className="tf-close" onClick={onClose}>×</button>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+
+            {/* Source or Title */}
+            <div className="tf-field">
+              <label className="tf-label">
+                {isIncome ? 'Source' : 'Title'}
+              </label>
+              <input
+                className="tf-input"
+                name={isIncome ? 'source' : 'title'}
+                value={isIncome ? form.source : form.title}
+                onChange={handleChange}
+                placeholder={isIncome ? 'e.g. Salary, Freelance' : 'e.g. Groceries, Netflix'}
+                required
+              />
+            </div>
+
+            {/* Amount + Date side by side */}
+            <div className="tf-row">
+              <div className="tf-field">
+                <label className="tf-label">Amount ($)</label>
+                <input
+                  className="tf-input"
+                  name="amount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={form.amount}
+                  onChange={handleChange}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div className="tf-field">
+                <label className="tf-label">Date</label>
+                <input
+                  className="tf-input"
+                  name="date"
+                  type="date"
+                  value={form.date}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Category */}
+            <div className="tf-field">
+              <label className="tf-label">Category</label>
+              <select
+                className="tf-input"
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                style={{ cursor: 'pointer' }}
+              >
+                {categories.map(cat => (
+                  <option key={cat} value={cat}
+                    style={{ backgroundColor: '#1e293b', color: '#ffffff' }}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Note */}
+            <div className="tf-field" style={{ marginBottom: 0 }}>
+              <label className="tf-label">
+                Note{' '}
+                <span style={{ color: '#475569', fontWeight: 400 }}>
+                  (optional)
+                </span>
+              </label>
+              <input
+                className="tf-input"
+                name="note"
+                value={form.note}
+                onChange={handleChange}
+                placeholder="Add a note..."
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="tf-actions">
+              <button
+                type="button"
+                className="tf-btn-cancel"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="tf-btn-submit"
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : (initial ? 'Update' : 'Add')}
+              </button>
+            </div>
+
+          </form>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* Source or Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              {isIncome ? 'Source' : 'Title'}
-            </label>
-            <input
-              name={isIncome ? 'source' : 'title'}
-              value={isIncome ? form.source : form.title}
-              onChange={handleChange}
-              placeholder={isIncome ? 'e.g. Salary' : 'e.g. Groceries'}
-              required
-              className="w-full bg-gray-800 border border-gray-700 text-white
-                         placeholder-gray-500 rounded-xl px-4 py-2.5 text-sm
-                         focus:outline-none focus:border-emerald-500 transition"
-            />
-          </div>
-
-          {/* Amount + Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                Amount ($)
-              </label>
-              <input
-                name="amount"
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={form.amount}
-                onChange={handleChange}
-                placeholder="0.00"
-                required
-                className="w-full bg-gray-800 border border-gray-700 text-white
-                           placeholder-gray-500 rounded-xl px-4 py-2.5 text-sm
-                           focus:outline-none focus:border-emerald-500 transition"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1.5">
-                Date
-              </label>
-              <input
-                name="date"
-                type="date"
-                value={form.date}
-                onChange={handleChange}
-                required
-                className="w-full bg-gray-800 border border-gray-700 text-white
-                           rounded-xl px-4 py-2.5 text-sm
-                           focus:outline-none focus:border-emerald-500 transition"
-              />
-            </div>
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Category
-            </label>
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              className="w-full bg-gray-800 border border-gray-700 text-white
-                         rounded-xl px-4 py-2.5 text-sm
-                         focus:outline-none focus:border-emerald-500 transition"
-            >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Note */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1.5">
-              Note <span className="text-gray-500">(optional)</span>
-            </label>
-            <input
-              name="note"
-              value={form.note}
-              onChange={handleChange}
-              placeholder="Add a note..."
-              className="w-full bg-gray-800 border border-gray-700 text-white
-                         placeholder-gray-500 rounded-xl px-4 py-2.5 text-sm
-                         focus:outline-none focus:border-emerald-500 transition"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose}
-              className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300
-                         font-medium py-2.5 rounded-xl transition text-sm">
-              Cancel
-            </button>
-            <button type="submit" disabled={loading}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white
-                         font-medium py-2.5 rounded-xl transition text-sm
-                         disabled:opacity-50 disabled:cursor-not-allowed">
-              {loading ? 'Saving...' : (initial ? 'Update' : 'Add')}
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
+    </>
   );
 };
 

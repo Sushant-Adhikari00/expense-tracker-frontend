@@ -1,69 +1,94 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { formatDate } from '../../utils/formatDate';
+import { formatDate }     from '../../utils/formatDate';
 
 const RecentTransactions = ({ incomes = [], expenses = [] }) => {
-
-  // Merge and sort by date descending, take latest 5
   const transactions = [
-    ...incomes.map(i  => ({ ...i,  type: 'income'  })),
-    ...expenses.map(e => ({ ...e,  type: 'expense' })),
+    ...incomes.map(i  => ({ ...i, type: 'income'  })),
+    ...expenses.map(e => ({ ...e, type: 'expense' })),
   ]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 5);
+    .slice(0, 6);
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-5">
+    <div style={{
+      backgroundColor: '#0f172a',
+      border:          '1px solid #1e293b',
+      borderRadius:    '16px',
+      overflow:        'hidden',
+    }}>
+      {/* Header */}
+      <div style={{
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'space-between',
+        padding:        '18px 22px',
+        borderBottom:   '1px solid #1e293b',
+      }}>
         <div>
-          <h3 className="text-white font-semibold">Recent Transactions</h3>
-          <p className="text-gray-400 text-xs mt-0.5">Latest activity</p>
+          <h3 style={{ color: '#ffffff', fontSize: '15px', fontWeight: 600, margin: 0 }}>
+            Recent Transactions
+          </h3>
+          <p style={{ color: '#64748b', fontSize: '12px', margin: '2px 0 0 0' }}>
+            Latest activity
+          </p>
         </div>
-        <Link to="/expenses"
-          className="text-emerald-400 hover:text-emerald-300
-                     text-xs font-medium transition">
-          View all
+        <Link to="/expenses" style={{
+          color:      '#10b981',
+          fontSize:   '13px',
+          fontWeight: 500,
+        }}>
+          View all →
         </Link>
       </div>
 
+      {/* Rows */}
       {transactions.length === 0 ? (
-        <div className="flex items-center justify-center py-10">
-          <p className="text-gray-500 text-sm">No transactions yet</p>
+        <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
+          No transactions yet
         </div>
       ) : (
-        <div className="space-y-3">
-          {transactions.map((tx) => (
-            <div key={`${tx.type}-${tx.id}`}
-              className="flex items-center justify-between
-                         py-3 border-b border-gray-800 last:border-0">
-              <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center
-                  ${tx.type === 'income'
-                    ? 'bg-emerald-500/10'
-                    : 'bg-red-500/10'}`}>
-                  {tx.type === 'income'
-                    ? <ArrowUpRight   size={16} className="text-emerald-400" />
-                    : <ArrowDownRight size={16} className="text-red-400"     />
-                  }
-                </div>
-                <div>
-                  <p className="text-white text-sm font-medium">
-                    {tx.type === 'income' ? tx.source : tx.title}
-                  </p>
-                  <p className="text-gray-500 text-xs">
-                    {tx.category} · {formatDate(tx.date)}
-                  </p>
-                </div>
+        transactions.map((tx) => (
+          <div key={`${tx.type}-${tx.id}`} style={{
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'space-between',
+            padding:        '14px 22px',
+            borderBottom:   '1px solid #1e293b',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width:           '38px',
+                height:          '38px',
+                backgroundColor: tx.type === 'income'
+                  ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                borderRadius:    '10px',
+                display:         'flex',
+                alignItems:      'center',
+                justifyContent:  'center',
+                fontSize:        '16px',
+                flexShrink:      0,
+              }}>
+                {tx.type === 'income' ? '↑' : '↓'}
               </div>
-              <span className={`text-sm font-semibold
-                ${tx.type === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
-                {tx.type === 'income' ? '+' : '-'}
-                {formatCurrency(tx.amount)}
-              </span>
+              <div>
+                <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: 500, margin: 0 }}>
+                  {tx.type === 'income' ? tx.source : tx.title}
+                </p>
+                <p style={{ color: '#64748b', fontSize: '12px', margin: '2px 0 0 0' }}>
+                  {tx.category} · {formatDate(tx.date)}
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
+            <span style={{
+              color:      tx.type === 'income' ? '#10b981' : '#ef4444',
+              fontSize:   '14px',
+              fontWeight: 600,
+            }}>
+              {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+            </span>
+          </div>
+        ))
       )}
     </div>
   );

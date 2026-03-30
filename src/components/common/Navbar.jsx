@@ -1,78 +1,129 @@
-import { Bell, Search, Calendar } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const Navbar = ({ title }) => {
   const { user } = useAuth();
 
+  const initials = user?.fullName
+    ?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+
   const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year:    'numeric',
-    month:   'long',
-    day:     'numeric',
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  // Get user initials for avatar
-  const initials = user?.fullName
-    ?.split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || 'U';
-
   return (
-    <header className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-md
-                       border-b border-gray-800 px-8 py-4">
-      <div className="flex items-center justify-between">
+    <header style={{
+      position:        'sticky',
+      top:             0,
+      zIndex:          30,
+      backgroundColor: 'rgba(3,7,18,0.85)',
+      backdropFilter:  'blur(12px)',
+      borderBottom:    '1px solid #1e293b',
+      padding:         '0 32px',
+      height:          '64px',
+      display:         'flex',
+      alignItems:      'center',
+      justifyContent:  'space-between',
+    }}>
 
-        {/* Left — title + date */}
-        <div className="flex items-center gap-4">
-          <div>
-            <h2 className="text-white font-semibold text-lg">{title}</h2>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <Calendar size={11} className="text-gray-500" />
-              <span className="text-gray-500 text-xs">{today}</span>
-            </div>
-          </div>
+      {/* Left */}
+      <div>
+        <h2 style={{
+          color:      '#ffffff',
+          fontSize:   '18px',
+          fontWeight: 600,
+          margin:     0,
+        }}>
+          {title}
+        </h2>
+        <p style={{
+          color:    '#64748b',
+          fontSize: '12px',
+          margin:   0,
+        }}>
+          {today}
+        </p>
+      </div>
+
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <span style={{
+            position:  'absolute',
+            left:      '12px',
+            top:       '50%',
+            transform: 'translateY(-50%)',
+            color:     '#64748b',
+            fontSize:  '13px',
+          }}>
+            🔍
+          </span>
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            style={{
+              backgroundColor: '#1e293b',
+              border:          '1px solid #334155',
+              borderRadius:    '10px',
+              padding:         '8px 14px 8px 34px',
+              color:           '#ffffff',
+              fontSize:        '13px',
+              width:           '220px',
+              outline:         'none',
+            }}
+          />
         </div>
 
-        {/* Right — search + bell + avatar */}
-        <div className="flex items-center gap-3">
+        {/* Bell */}
+        <div style={{
+          width:           '36px',
+          height:          '36px',
+          backgroundColor: '#1e293b',
+          border:          '1px solid #334155',
+          borderRadius:    '10px',
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+          cursor:          'pointer',
+          fontSize:        '16px',
+          position:        'relative',
+        }}>
+          🔔
+          <span style={{
+            position:        'absolute',
+            top:             '6px',
+            right:           '6px',
+            width:           '7px',
+            height:          '7px',
+            backgroundColor: '#10b981',
+            borderRadius:    '50%',
+          }} />
+        </div>
 
-          {/* Search bar */}
-          <div className="relative hidden md:block">
-            <Search size={14} className="absolute left-3 top-2.5 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              className="bg-gray-800 border border-gray-700 text-white text-sm
-                         placeholder-gray-500 rounded-xl pl-9 pr-4 py-2
-                         focus:outline-none focus:border-emerald-500 transition
-                         w-56"
-            />
+        {/* Avatar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width:           '36px',
+            height:          '36px',
+            backgroundColor: 'rgba(16,185,129,0.15)',
+            border:          '1px solid rgba(16,185,129,0.3)',
+            borderRadius:    '10px',
+            display:         'flex',
+            alignItems:      'center',
+            justifyContent:  'center',
+            fontSize:        '12px',
+            fontWeight:      700,
+            color:           '#10b981',
+          }}>
+            {initials}
           </div>
-
-          {/* Notifications */}
-          <button className="relative w-9 h-9 bg-gray-800 border border-gray-700
-                             rounded-xl flex items-center justify-center
-                             text-gray-400 hover:text-white hover:border-gray-600
-                             transition">
-            <Bell size={16} />
-            {/* Unread dot */}
-            <span className="absolute top-1.5 right-1.5 w-2 h-2
-                             bg-emerald-500 rounded-full" />
-          </button>
-
-          {/* User avatar */}
-          <div className="flex items-center gap-2.5 pl-1">
-            <div className="w-9 h-9 bg-emerald-500/20 border border-emerald-500/30
-                            rounded-xl flex items-center justify-center">
-              <span className="text-emerald-400 text-xs font-bold">{initials}</span>
+          <div>
+            <div style={{ color: '#ffffff', fontSize: '13px', fontWeight: 500 }}>
+              {user?.fullName}
             </div>
-            <div className="hidden md:block">
-              <p className="text-white text-sm font-medium leading-tight">
-                {user?.fullName}
-              </p>
-              <p className="text-gray-500 text-xs">{user?.email}</p>
+            <div style={{ color: '#64748b', fontSize: '11px' }}>
+              {user?.email}
             </div>
           </div>
         </div>

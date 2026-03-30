@@ -1,29 +1,49 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
 const Pagination = ({ page, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div style={{
+      display:        'flex',
+      alignItems:     'center',
+      justifyContent: 'center',
+      gap:            '8px',
+      padding:        '16px',
+    }}>
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 0}
-        className="p-2 rounded-lg border border-gray-700 text-gray-400
-                   hover:text-white hover:border-gray-600 disabled:opacity-30
-                   disabled:cursor-not-allowed transition"
+        style={{
+          width:           '34px',
+          height:          '34px',
+          backgroundColor: 'transparent',
+          border:          '1px solid #334155',
+          borderRadius:    '8px',
+          color:           page === 0 ? '#475569' : '#94a3b8',
+          cursor:          page === 0 ? 'not-allowed' : 'pointer',
+          fontSize:        '16px',
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+        }}
       >
-        <ChevronLeft size={16} />
+        ‹
       </button>
 
       {[...Array(totalPages)].map((_, i) => (
         <button
           key={i}
           onClick={() => onPageChange(i)}
-          className={`w-9 h-9 rounded-lg text-sm font-medium transition
-            ${i === page
-              ? 'bg-emerald-500 text-white border border-emerald-500'
-              : 'border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600'
-            }`}
+          style={{
+            width:           '34px',
+            height:          '34px',
+            backgroundColor: i === page ? '#10b981' : 'transparent',
+            border:          `1px solid ${i === page ? '#10b981' : '#334155'}`,
+            borderRadius:    '8px',
+            color:           i === page ? '#ffffff' : '#94a3b8',
+            cursor:          'pointer',
+            fontSize:        '13px',
+            fontWeight:      i === page ? 600 : 400,
+          }}
         >
           {i + 1}
         </button>
@@ -32,11 +52,21 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages - 1}
-        className="p-2 rounded-lg border border-gray-700 text-gray-400
-                   hover:text-white hover:border-gray-600 disabled:opacity-30
-                   disabled:cursor-not-allowed transition"
+        style={{
+          width:           '34px',
+          height:          '34px',
+          backgroundColor: 'transparent',
+          border:          '1px solid #334155',
+          borderRadius:    '8px',
+          color:           page === totalPages - 1 ? '#475569' : '#94a3b8',
+          cursor:          page === totalPages - 1 ? 'not-allowed' : 'pointer',
+          fontSize:        '16px',
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+        }}
       >
-        <ChevronRight size={16} />
+        ›
       </button>
     </div>
   );
