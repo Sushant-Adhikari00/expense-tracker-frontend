@@ -4,10 +4,11 @@ import { useAuth }                 from '../../hooks/useAuth';
 import toast                       from 'react-hot-toast';
 
 const navItems = [
-  { to: '/dashboard', icon: '⊞', label: 'Dashboard' },
-  { to: '/income',    icon: '↑',  label: 'Income'    },
-  { to: '/expenses',  icon: '↓',  label: 'Expenses'  },
-  { to: '/goals',     icon: '◎',  label: 'Goals'     },
+  { to: '/dashboard', icon: '⊞', label: 'Dashboard'       },
+  { to: '/income',    icon: '↑',  label: 'Income'          },
+  { to: '/expenses',  icon: '↓',  label: 'Expenses'        },
+  { to: '/goals',     icon: '◎',  label: 'Goals'           },
+  { to: '/ai',        icon: '✦',  label: 'AI Insights'     }, // ← add this
 ];
 
 const Sidebar = () => {

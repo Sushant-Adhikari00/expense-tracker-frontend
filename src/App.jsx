@@ -9,6 +9,7 @@ import IncomePage         from './pages/IncomePage';
 import ExpensePage        from './pages/ExpensePage';
 import GoalsPage          from './pages/GoalsPage';
 import NotFoundPage       from './pages/NotFoundPage';
+import AIPage from './pages/AIPage';
 
 const App = () => (
   <AuthProvider>
@@ -42,6 +43,11 @@ const App = () => (
         <Route path="/dashboard" element={
           <ProtectedRoute><DashboardPage /></ProtectedRoute>
         }/>
+
+        <Route path="/ai" element={
+          <ProtectedRoute><AIPage /></ProtectedRoute>
+        }/>
+
         <Route path="/income" element={
           <ProtectedRoute><IncomePage /></ProtectedRoute>
         }/>
