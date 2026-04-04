@@ -19,12 +19,12 @@ const Sidebar = () => {
   const initials = user?.fullName
     ?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
 
-  const handleLogoutConfirmed = () => {
-    logout();
-    toast.success('Logged out successfully');
-    navigate('/login');
-    setShowConfirm(false);
-  };
+  const handleLogoutConfirmed = async () => {
+  await logout();                    // ← await the API call
+  toast.success('Logged out successfully');
+  navigate('/login');
+  setShowConfirm(false);
+};
 
   return (
     <>

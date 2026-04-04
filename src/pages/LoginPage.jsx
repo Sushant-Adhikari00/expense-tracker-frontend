@@ -49,27 +49,30 @@ const LoginPage = () => {
       login(data);
       toast.success(`Welcome back, ${data.fullName}!`);
       navigate('/dashboard');
-    } catch (err) {
-      const status  = err.response?.status;
-      const message = err.response?.data?.message;
+    // In handleSubmit catch block — add 429 case
+} catch (err) {
+  const status  = err.response?.status;
+  const message = err.response?.data?.message;
 
-      if (status === 401) {
-        setGlobalError('Invalid email or password. Please try again.');
-        setErrors({
-          email:    ' ',      // highlights field without message
-          password: ' ',
-        });
-      } else if (status === 404) {
-        setGlobalError('No account found with this email.');
-        setErrors({ email: 'No account found with this email' });
-      } else if (status === 400) {
-        setGlobalError(message || 'Invalid request. Please check your input.');
-      } else if (!err.response) {
-        setGlobalError('Cannot connect to server. Please try again later.');
-      } else {
-        setGlobalError(message || 'Something went wrong. Please try again.');
-      }
-    } finally {
+  if (status === 429) {
+    setGlobalError(
+      message || 'Too many attempts. Please wait before trying again.'
+    );
+    // Optional: disable the button for a few seconds
+    setLoading(true);
+    setTimeout(() => setLoading(false), 5000);
+  } else if (status === 401) {
+    setGlobalError('Invalid email or password. Please try again.');
+    setErrors({ email: ' ', password: ' ' });
+  } else if (status === 409) {
+    setGlobalError('An account with this email already exists.');
+    setErrors({ email: 'Email already registered' });
+  } else if (!err.response) {
+    setGlobalError('Cannot connect to server. Please try again later.');
+  } else {
+    setGlobalError(message || 'Something went wrong. Please try again.');
+  }
+} finally {
       setLoading(false);
     }
   };

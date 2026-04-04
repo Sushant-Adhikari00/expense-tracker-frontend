@@ -1,10 +1,7 @@
 import axiosInstance from './axiosInstance';
 
 export const authApi = {
-
-  register: (data) =>
-    axiosInstance.post('/auth/register', data),
-
-  login: (data) =>
-    axiosInstance.post('/auth/login', data),
+  register: (data) => axiosInstance.post('/auth/register', data),
+  login:    (data) => axiosInstance.post('/auth/login',    data),
+  logout:   ()     => axiosInstance.delete('/auth/logout'),    // ← add
 };
