@@ -1,28 +1,86 @@
 import { useState, useEffect, useCallback } from 'react';
-import { expenseApi } from '../api/expenseApi';
-import toast from 'react-hot-toast';
+import { useSearchParams }                  from 'react-router-dom';
+import { expenseApi }                       from '../api/expenseApi';
+import toast                                from 'react-hot-toast';
+
+const DEFAULT_FILTERS = {
+  preset:    '',
+  startDate: undefined,
+  endDate:   undefined,
+  category:  undefined,
+  minAmount: undefined,
+  maxAmount: undefined,
+  title:     undefined,
+};
 
 export const useExpense = (initialPage = 0, pageSize = 10) => {
-  const [data,    setData]    = useState({
-    content: [], page: 0, totalPages: 0, totalElements: 0
+  const [data,       setData]       = useState({
+    content: [], page: 0, totalPages: 0,
+    totalElements: 0, totalAmount: 0, averageAmount: 0,
   });
-  const [page,    setPage]    = useState(initialPage);
-  const [loading, setLoading] = useState(true);
-  const [saving,  setSaving]  = useState(false);
+  const [page,       setPage]       = useState(initialPage);
+  const [loading,    setLoading]    = useState(true);
+  const [saving,     setSaving]     = useState(false);
+  const [filters,    setFilters]    = useState(DEFAULT_FILTERS);
+  const [isFiltered, setIsFiltered] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const searchQuery    = searchParams.get('search') || '';
+
+  const hasActiveFilters = (f) =>
+    Object.values(f).some(v => v !== undefined && v !== '' && v !== null);
 
   const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await expenseApi.getAll(page, pageSize);
-      setData(res.data);
+      let result;
+
+      if (hasActiveFilters(filters)) {
+        const res  = await expenseApi.getFiltered({
+          ...filters,
+          page,
+          size: pageSize,
+        });
+        result = res.data;
+        setIsFiltered(true);
+      } else {
+        const res  = await expenseApi.getAll(page, pageSize);
+        result = res.data;
+        setIsFiltered(false);
+      }
+
+      // Apply URL search param client-side
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        result  = {
+          ...result,
+          content: result.content.filter(e =>
+            e.title?.toLowerCase().includes(q)    ||
+            e.category?.toLowerCase().includes(q) ||
+            e.note?.toLowerCase().includes(q)
+          ),
+        };
+      }
+
+      setData(result);
     } catch {
       toast.error('Failed to load expenses');
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [page, pageSize, filters, searchQuery]);
 
   useEffect(() => { fetchExpenses(); }, [fetchExpenses]);
+
+  const applyFilters = (newFilters) => {
+    setFilters(newFilters);
+    setPage(0);
+  };
+
+  const resetFilters = () => {
+    setFilters(DEFAULT_FILTERS);
+    setPage(0);
+  };
 
   const createExpense = async (payload) => {
     setSaving(true);
@@ -71,7 +129,12 @@ export const useExpense = (initialPage = 0, pageSize = 10) => {
     page,
     loading,
     saving,
+    filters,
+    isFiltered,
+    searchQuery,
     setPage,
+    applyFilters,
+    resetFilters,
     fetchExpenses,
     createExpense,
     updateExpense,

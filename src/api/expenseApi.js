@@ -2,18 +2,21 @@ import axiosInstance from './axiosInstance';
 
 export const expenseApi = {
 
-  create: (data) =>
+  create:  (data) =>
     axiosInstance.post('/expenses', data),
 
-  getAll: (page = 0, size = 10) =>
+  getAll:  (page = 0, size = 10) =>
     axiosInstance.get('/expenses', { params: { page, size } }),
+
+  getFiltered: (filters = {}) =>
+    axiosInstance.get('/expenses/filter', { params: filters }),
 
   getById: (id) =>
     axiosInstance.get(`/expenses/${id}`),
 
-  update: (id, data) =>
+  update:  (id, data) =>
     axiosInstance.put(`/expenses/${id}`, data),
 
-  delete: (id) =>
+  delete:  (id) =>
     axiosInstance.delete(`/expenses/${id}`),
 };

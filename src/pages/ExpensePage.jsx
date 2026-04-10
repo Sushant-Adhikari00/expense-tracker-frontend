@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useExpense }      from '../hooks/useExpense';
-import PageWrapper         from '../components/common/PageWrapper';
-import TransactionTable    from '../components/transactions/TransactionTable';
-import TransactionForm     from '../components/transactions/TransactionForm';
+import { useState }            from 'react';
+import { useExpense }          from '../hooks/useExpense';
+import PageWrapper             from '../components/common/PageWrapper';
+import TransactionTable        from '../components/transactions/TransactionTable';
+import TransactionForm         from '../components/transactions/TransactionForm';
+import FilterBar               from '../components/transactions/FilterBar';
+import { formatCurrency }      from '../utils/formatCurrency';
 
-// ← Put it here, outside the component
 const addBtnStyle = {
   display:         'flex',
   alignItems:      'center',
@@ -19,12 +20,12 @@ const addBtnStyle = {
   cursor:          'pointer',
 };
 
-
-
 const ExpensePage = () => {
   const {
     data, loading, saving,
-    setPage, createExpense, updateExpense, deleteExpense,
+    filters, isFiltered,
+    setPage, applyFilters, resetFilters,
+    createExpense, updateExpense, deleteExpense,
   } = useExpense();
 
   const [showForm, setShowForm] = useState(false);
@@ -48,13 +49,70 @@ const ExpensePage = () => {
   return (
     <PageWrapper
       title="Expenses"
-      subtitle={`${data.totalElements ?? 0} records total`}
+      subtitle={
+        isFiltered
+          ? `${data.totalElements} results · Total: ${formatCurrency(data.totalAmount ?? 0)}`
+          : `${data.totalElements ?? 0} records total`
+      }
       action={
         <button style={addBtnStyle} onClick={() => setShowForm(true)}>
           + Add Expense
         </button>
       }
     >
+
+      {/* Filter bar */}
+      <FilterBar
+        type="expense"
+        filters={filters}
+        onChange={applyFilters}
+        onReset={resetFilters}
+      />
+
+      {/* Summary strip — only visible when filters are active */}
+      {isFiltered && data.totalElements > 0 && (
+        <div style={{
+          display:      'flex',
+          gap:          '12px',
+          marginBottom: '16px',
+          flexWrap:     'wrap',
+        }}>
+          {[
+            { label: 'Matching Records', value: data.totalElements,                       color: '#ffffff'  },
+            { label: 'Total Amount',     value: formatCurrency(data.totalAmount ?? 0),    color: '#ef4444'  },
+            { label: 'Average Amount',   value: formatCurrency(data.averageAmount ?? 0),  color: '#60a5fa'  },
+          ].map(({ label, value, color }) => (
+            <div key={label} style={{
+              backgroundColor: '#0f172a',
+              border:          '1px solid #1e293b',
+              borderRadius:    '10px',
+              padding:         '10px 16px',
+              flex:            1,
+              minWidth:        '140px',
+            }}>
+              <p style={{
+                color:         '#64748b',
+                fontSize:      '11px',
+                fontWeight:    600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin:        '0 0 4px 0',
+              }}>
+                {label}
+              </p>
+              <p style={{
+                color,
+                fontSize:   '18px',
+                fontWeight: 700,
+                margin:     0,
+              }}>
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       <TransactionTable
         type="expense"
         data={data}
